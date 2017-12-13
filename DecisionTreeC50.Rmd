@@ -48,7 +48,7 @@ prop.table(table(credit_test$default))
 credit_model <- C5.0(credit_train[-17], credit_train$default, trials=10)
 ```
 
-### evaluate the model
+### evaluate the model usimg CrossTable
 ```{r }
 credit_pred <- predict(credit_model, credit_test)
 
