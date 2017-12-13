@@ -1,0 +1,76 @@
+---
+title: "knnModel"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Analyzing Breast Cancer Wisconsin (Diagnostic) Data Set using kNN
+
+ http://archive.ics.uci.edu/ml
+
+### load library 
+
+```{r }
+library(class)         # for knn()
+library(gmodels)    # for CrossTable()
+```
+
+## load the data set
+
+```{r }
+wbcd <- read.csv("wdbc.csv", header=FALSE, stringsAsFactors = FALSE)
+
+colnames(wbcd) <- c("id", "diagnosis", "radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean","compactness_mean","concavity_mean", "concave_points_mean", "symmetry_mean", "fractal_dimension_mean", "radius_sd", "texture_sd", "perimeter_sd", "area_sd", "smoothness_sd", "compactness_s", "concavity_sd", "concave_points_sd", "symmetry_sd", "fractal_dimension_sd", "radius_worst", "texture_worst", "perimeter_worst", "area_worst", "smoothness_worst","compactness_worst","concavity_worst", "concave_points_worst", "symmetry_worst", "fractal_dimension_worst")
+```
+
+### view the layout of data
+```{r }
+str(wbcd)
+```
+
+### we have id in first column, this is not required to create a machine learning model. So we discard it
+```{r }
+wbcd <- wbcd[-1]
+```
+
+### change the lable of diagnosis column
+```{r }
+table(wbcd$diagnosis)
+wbcd$diagnosis <- factor(wbcd$diagnosis, levels = c("B", "M"),
+                        labels = c("Benign", "Malignant"))
+```
+
+### check the diagnosis proportion
+```{r }
+round(prop.table(table(wbcd$diagnosis)) * 100, digits = 1)
+summary(wbcd[c("radius_mean", "area_mean", "smoothness_mean")])
+```
+
+### now we scale the value using min max normalization
+```{r }
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x)))
+}
+
+wbcd_n <- as.data.frame(lapply(wbcd[2:31], normalize))  #normalize is user defined
+summary(wbcd_n$area_mean)
+```
+
+### create knn model, we choose k = 21 as sqrt(469)
+```{r }
+wbcd_train <- wbcd_n[1:469, ]
+wbcd_test <- wbcd_n[470:569, ]
+wbcd_train_labels <- wbcd[1:469, 1]
+wbcd_test_labels <- wbcd[470:569, 1]
+wbcd_test_pred <- knn(train = wbcd_train, test = wbcd_test,
+                        cl = wbcd_train_labels, k = 21)
+```
+
+### measure the accuracy using CrossTable
+```{r }
+CrossTable(x = wbcd_test_labels, y = wbcd_test_pred,
+           prop.chisq=FALSE)
+```
