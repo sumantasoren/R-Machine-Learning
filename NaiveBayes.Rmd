@@ -57,7 +57,7 @@ wordcloud(sms_corpus_clean, min.freq = 50, colors = brewer.pal(5, "Dark2"), rand
 
 ```
 
-# create model
+### create model
 ```{r }
 sms_dtm <- DocumentTermMatrix(sms_corpus_clean)
 sms_dtm_train <- sms_dtm[1:4169, ]                # 75%
@@ -88,7 +88,7 @@ sms_test_pred <- predict(sms_classifier, sms_test)
 
 ```
 
-# evaluate the model
+### evaluate the model
 ```{r }
 CrossTable(sms_test_pred, sms_test_labels,
              prop.chisq = FALSE, prop.t = FALSE,
